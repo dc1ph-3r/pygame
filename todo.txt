@@ -2,4 +2,5 @@
 2. create a new, load and settings button after selecting play on Menu
 3. get sprites and assests for characters, backgrounds and environmnetal objects
 4. Outline gameplay and map look/feel/performance
-5. 
+5. storyline is based on a warrior who has lost his wife and the goal is to randomly regain memory of previous life and find the portal to another dimension where he is held and defeat various levels of bossess to save her
+6. Draw inspiration from Star Dew Valley and Nessess and Minecraft
