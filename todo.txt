@@ -1,0 +1,5 @@
+1. Main Menu
+2. create a new, load and settings button after selecting play on Menu
+3. get sprites and assests for characters, backgrounds and environmnetal objects
+4. Outline gameplay and map look/feel/performance
+5. 

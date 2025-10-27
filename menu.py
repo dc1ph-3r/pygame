@@ -1,10 +1,12 @@
 import pygame # type: ignore
 import os
+from save_manager import save_exists
 
 # ---colours---
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREY = (200, 200, 200)
+DARK_GREY = (100, 100, 100) # ---used for disabled buttons---
 
 def draw_menu(screen):
 
@@ -21,11 +23,11 @@ def draw_menu(screen):
     font = pygame.font.Font(None, 50)
 
     # ---DRAW TITLE TEXT---
-    title = font.render("Welcome to EverLong", True, WHITE)
+    title = font.render("Welcome to EVERLONG", True, WHITE)
     screen.blit(title, (screen_width // 2 - title.get_width() // 2, 200))
 
     # ---BUTTONS---
-    button_font = pygame.font.Font(None, 50)
+    button_font = pygame.font.Font(None, 40)
 
     # ---BUTTON DIMENTIONS---
     button_width = 200  # ---BUTTON RECT WIDTH---
@@ -33,33 +35,43 @@ def draw_menu(screen):
     button_padding = 40 # ---SPACE BETWEEN THE BUTTONS---
 
     # ---Y POS FOR BUTTONS NEAR BOTTOM OF SCREEN---
-    button_y = screen_height - 100
+    button_y = screen_height - 200
 
     # ---CALCULATE POS FOR SIDE BY SIDE LAYOUTS---
     total_width = button_width * 2 + button_padding
     left_x = (screen_width - total_width) // 2
+    lefter_x = left_x - button_width - button_padding
     right_x = left_x + button_width + button_padding
+    righter_x = left_x + button_width*2 + button_padding*2
 
     # ---DEFINE BUTTONS---
-    play_button = pygame.Rect(left_x, button_y, button_width, button_height)
+    load_button = pygame.Rect(left_x, button_y, button_width, button_height)
     quit_button = pygame.Rect(right_x, button_y, button_width, button_height)
+    settings_button = pygame.Rect(righter_x, button_y, button_width, button_height)
+    newgame_button = pygame.Rect(lefter_x, button_y, button_width, button_height)
 
     mouse_pos = pygame.mouse.get_pos()
 
-    # ---PLAY BUTTON---
-    if play_button.collidepoint(mouse_pos):
-        pygame.draw.rect(screen, GREY, play_button, border_radius=10)
-    else:
-        pygame.draw.rect(screen, GREY, play_button, border_radius=10)
-    play_text = button_font.render("Play", True, WHITE)
-    screen.blit(play_text, play_text.get_rect(center=play_button.center))
+    # ---check if save exists---
+    can_load = save_exists()
 
-    # ---Quit Button---
-    if quit_button.collidepoint(mouse_pos):
-        pygame.draw.rect(screen, GREY, quit_button, border_radius=10)
-    else:
-        pygame.draw.rect(screen, GREY, quit_button, border_radius=10)
-    quit_text = button_font.render("Quit", True, WHITE)
-    screen.blit(quit_text, quit_text.get_rect(center=quit_button.center))
+    # ---Draw Buttons---
+    def draw_button(rect, text, enabled=True):
+        color = GREY if enabled else DARK_GREY
+        pygame.draw.rect(screen, color, rect, border_radius=10)
+        label = button_font.render(text, True, WHITE if enabled else (160, 160, 160))
+        screen.blit(label, label.get_rect(center=rect.center))
+    
+    draw_button(newgame_button, "New Game", True)
+    draw_button(load_button, "Load", can_load)
+    draw_button(settings_button, "Settings", True)
+    draw_button(quit_button, "Quit", True)
 
-    return play_button, quit_button
+    # ---return the buttons and load status for main.py to handle clicks
+    return {
+        "new_game":newgame_button,
+        "load":load_button,
+        "quit":quit_button,
+        "settings":settings_button,
+        "can_load":can_load
+    }

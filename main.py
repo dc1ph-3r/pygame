@@ -1,17 +1,23 @@
 import pygame
 from menu import draw_menu
+import playing
+from save_manager import save_exists
 
 pygame.init()
 
-screen_width = 800
-screen_height = 600
-
 # --- screen/caption setup ---
+screen_width = 1000
+screen_height = 800
 screen = pygame.display.set_mode([screen_width, screen_height])
-pygame.display.set_caption("Ripply & Claret Game")
+pygame.display.set_caption("EVERLONG")
 
+# --- game state ---
 game_state = "menu"
 run = True
+clock = pygame.time.Clock()
+
+# -- tracker whether to start a new game or load saved 
+next_game_mode = True # default ot new game
 
 # --- Main Loop ---
 while run:
@@ -22,35 +28,59 @@ while run:
             run = False
 
         if game_state == "menu":
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                game_state = "playing"
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                # --- Handle mouse clicks on buttons ---
-                play_button, quit_button = draw_menu(screen) # --- get rects for buttons ---
-                if play_button.collidepoint(event.pos):      # --- when play button is clicked ---
-                    print("Play Button Clicked")
-                    game_state = "playing"
-                elif quit_button.collidepoint(event.pos):    # --- when quit button is clicked ---
-                    print("Quit Button Clicked")
-                    run = False
-        
-        elif game_state == "playing":
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                pos = event.pos
 
-            # --- fill in what happens when playing the game ---
-            pass
-    
-    # --- refreshing background ---
+                # --- get button rects and load status from menu
+                buttons = draw_menu(screen)
+
+                # --- check clicks ---
+                if buttons["quit"].collidepoint(pos):
+                    print("Quit button clicked")
+                    run = False
+                
+                elif buttons["new_game"].collidepoint(pos):
+                    print("New Game button clicked")
+                    game_state = 'running'
+                    playing.run_game(new_game=True)
+
+                elif buttons["load"].collidepoint(pos):
+                    if buttons["can_load"]:
+                        print("Load button clicked")
+                        game_state = "playing"
+                        playing.run_game(new_game=False)
+                    else:
+                        print("No save file found - Load disabled")
+
+                elif buttons["Settings"].collidepoint(pos):
+                    print("Settings button clicked")
+            
+            elif game_state == "playing":
+                # Launch the game loop inside playing.py
+                # and wait for it to finish or return a state
+                result = playing.run_game(new_game=next_game_mode)
+
+                # When playing.py exits - decide what to do next
+                if result == "menu":
+                    print("Retuned to menu from playing")
+                    game_state = "menu"
+
+                elif result == "quit":
+                    print("Quitting from playing")
+                    run = False
+
+    # --- draw background ---
     screen.fill((0, 0, 0))
 
-    # --- display menu ---
+    # --- draw current scene ---
     if game_state == "menu":
-        play_button, quit_button = draw_menu(screen)
-
-    # --- display playing ---
+        draw_menu(screen)
+    
     elif game_state == "playing":
         
-        pass # configure later
+        pass
 
     pygame.display.flip()
+    clock.tick(60)
 
 pygame.quit()
